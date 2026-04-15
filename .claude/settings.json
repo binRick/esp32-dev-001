@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls *)",
+      "WebSearch",
+      "Bash(system_profiler SPUSBDataType)",
+      "Bash(pip3 --version)",
+      "Bash(pip3 install *)",
+      "Bash(pip3 uninstall *)",
+      "Bash(python3 *)",
+      "Bash(.venv/bin/pip install *)",
+      "Bash(.venv/bin/esptool.py *)",
+      "Bash(chmod +x *)",
+      "Skill(update-config)"
+    ]
+  }
+}
