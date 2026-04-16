@@ -62,6 +62,23 @@ source .venv/bin/activate
 ### ESP-IDF / VS Code
 Set `PORT=/dev/cu.wchusbserial5AB90133721` in your project config.
 
+## Python Environment
+
+All Python tools must be installed into the repo's virtual environment — never globally.
+
+```bash
+# Install a new tool
+.venv/bin/pip install <package>
+
+# Run a tool
+.venv/bin/<tool> ...
+
+# Or activate first, then use normally
+source .venv/bin/activate
+```
+
+Do not use `pip3 install` or `pip install` directly — always use `.venv/bin/pip`.
+
 ## Notes
 
 - The board has two USB ports — the one in use is connected via the WCH/CH343 UART bridge
