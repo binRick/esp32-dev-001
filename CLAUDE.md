@@ -90,6 +90,13 @@ Number scripts sequentially: `flash-sketch-001-...`, `flash-sketch-002-...`, etc
 
 After writing the sketch and flash script, **always run the flash script automatically** and iterate until it compiles and flashes successfully — fixing errors without being asked.
 
+After a sketch is working, **always commit and push it to the repo**:
+```bash
+git add sketches/<name>/ flash-sketch-<NNN>-<name>.sh
+git commit -m "Add sketch <NNN>: <description>"
+git push
+```
+
 The flash script must:
 - Install arduino-cli via Homebrew if missing
 - Install required libraries (from registry or Freenove zip as needed)
