@@ -1,0 +1,20 @@
+/Users/richardblundell/Desktop/repos/esp32-dev-001/build/core/MD5Builder.cpp.o: \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/hardware/esp32/3.3.8/cores/esp32/MD5Builder.cpp \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/hardware/esp32/3.3.8/cores/esp32/HEXBuilder.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/hardware/esp32/3.3.8/cores/esp32/WString.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/hardware/esp32/3.3.8/cores/esp32/pgmspace.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/newlib/platform_include/ctype.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/hardware/esp32/3.3.8/cores/esp32/Stream.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/hardware/esp32/3.3.8/cores/esp32/Print.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/newlib/platform_include/stdio.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/hardware/esp32/3.3.8/cores/esp32/WString.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/hardware/esp32/3.3.8/cores/esp32/Printable.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/hardware/esp32/3.3.8/cores/esp32/MD5Builder.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/esp_system/include/esp_system.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/esp_common/include/esp_err.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/esp_common/include/esp_compiler.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/esp_common/include/esp_attr.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/esp_common/include/esp_bit_defs.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/esp_common/include/esp_idf_version.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/esp_rom/include/esp_rom_md5.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/hardware/esp32/3.3.8/cores/esp32/HashBuilder.h
