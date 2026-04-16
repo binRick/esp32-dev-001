@@ -59,18 +59,48 @@ else
 fi
 
 # ── 3. Ensure required libraries are installed ───────────────────────────────
-install_lib_if_missing() {
+ARDUINO_LIBS="$(arduino-cli config get directories.user 2>/dev/null || echo "$HOME/Documents/Arduino")/libraries"
+
+install_lib_registry() {
   local name="$1"
   if ! arduino-cli lib list 2>/dev/null | grep -q "^$name"; then
-    info "Installing library: $name"
+    info "Installing library from registry: $name"
     arduino-cli lib install "$name"
   else
     info "Library already installed: $name"
   fi
 }
 
-install_lib_if_missing "TFT_eSPI"
-install_lib_if_missing "Arduino-FT6336U"
+# Install a library from a GitHub release zip if not already present
+# Usage: install_lib_zip <dir-name> <zip-url>
+install_lib_zip() {
+  local dir_name="$1"
+  local zip_url="$2"
+  local dest="$ARDUINO_LIBS/$dir_name"
+  if [ -d "$dest" ]; then
+    info "Library already installed: $dir_name"
+    return
+  fi
+  info "Downloading library: $dir_name"
+  local tmp_zip
+  tmp_zip="$(mktemp /tmp/lib_XXXXXX.zip)"
+  curl -sL "$zip_url" -o "$tmp_zip"
+  mkdir -p "$ARDUINO_LIBS"
+  unzip -q "$tmp_zip" -d "$ARDUINO_LIBS"
+  rm "$tmp_zip"
+  # Rename extracted folder to expected name if needed
+  local extracted
+  extracted="$(unzip -Z -1 "$tmp_zip" 2>/dev/null | head -1 | cut -d/ -f1 || true)"
+  if [ -n "$extracted" ] && [ "$extracted" != "$dir_name" ] && [ -d "$ARDUINO_LIBS/$extracted" ]; then
+    mv "$ARDUINO_LIBS/$extracted" "$dest"
+  fi
+  info "Installed: $dir_name"
+}
+
+FREENOVE_RAW="https://raw.githubusercontent.com/Freenove/Freenove_Development_Kit_for_ESP32_S3/main/Libraries"
+
+install_lib_registry "TFT_eSPI"
+install_lib_zip "Arduino-FT6336U" "$FREENOVE_RAW/Arduino-FT6336U_v1.0.2.zip"
 
 # Patch TFT_eSPI User_Setup.h with our board config
 TFTESPI_DIR="$(arduino-cli config get directories.user 2>/dev/null || echo "$HOME/Documents/Arduino")/libraries/TFT_eSPI"
@@ -98,7 +128,8 @@ if $DO_FLASH; then
   BIN="$BUILD_DIR/beep_button.ino.bin"
   BOOTLOADER="$BUILD_DIR/beep_button.ino.bootloader.bin"
   PARTITIONS="$BUILD_DIR/beep_button.ino.partitions.bin"
-  BOOT_APP="$(find "$HOME/.arduino15/packages/esp32/hardware/esp32" \
+  BOOT_APP="$(find "$HOME/Library/Arduino15/packages/esp32" \
+    "$HOME/.arduino15/packages/esp32" \
     -name "boot_app0.bin" 2>/dev/null | head -1)"
 
   [ -f "$BIN" ]         || error "Binary not found: $BIN  (run --compile first)"

@@ -3,8 +3,8 @@
 // Draws a BEEP button on the 2.8" ST7789 LCD.
 // Tap it with your finger → speakers play a 880 Hz tone for 200 ms.
 //
-// Required libraries (install from Freenove repo zip files):
-//   TFT_eSPI         — LCD driver (configure User_Setup.h, see README)
+// Required libraries (installed automatically by flash script):
+//   TFT_eSPI         — LCD driver
 //   Arduino-FT6336U  — capacitive touch
 //
 // Pin summary:
@@ -14,16 +14,16 @@
 
 #include <TFT_eSPI.h>
 #include "FT6336U.h"
-#include "driver/i2s.h"
+#include "driver/i2s_std.h"
 #include <math.h>
 
 // ── Pin definitions ──────────────────────────────────────────────────────────
 #define TOUCH_SDA  2
 #define TOUCH_SCL  1
 
-#define I2S_BCLK  42
-#define I2S_LRC   14
-#define I2S_DOUT  41
+#define I2S_BCLK_PIN  42
+#define I2S_LRC_PIN   14
+#define I2S_DOUT_PIN  41
 
 // ── Button layout (portrait 240×320) ─────────────────────────────────────────
 #define SCREEN_W  240
@@ -36,39 +36,42 @@
 
 // ── Globals ───────────────────────────────────────────────────────────────────
 TFT_eSPI tft;
-FT6336U  touch(TOUCH_SDA, TOUCH_SCL, -1, -1);
+FT6336U  ts(TOUCH_SDA, TOUCH_SCL, -1, -1);  // 'ts' avoids clash with TouchStatusEnum::touch
 
-// ── I2S setup ─────────────────────────────────────────────────────────────────
+static i2s_chan_handle_t i2s_tx;
+
+// ── I2S setup (new ESP-IDF 5.x API) ──────────────────────────────────────────
 void i2s_setup() {
-  i2s_config_t cfg = {
-    .mode               = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX),
-    .sample_rate        = 22050,
-    .bits_per_sample    = I2S_BITS_PER_SAMPLE_16BIT,
-    .channel_format     = I2S_CHANNEL_FMT_RIGHT_LEFT,
-    .communication_format = I2S_COMM_FORMAT_STAND_I2S,
-    .intr_alloc_flags   = 0,
-    .dma_buf_count      = 4,
-    .dma_buf_len        = 256,
-    .use_apll           = false,
-    .tx_desc_auto_clear = true
+  i2s_chan_config_t chan_cfg = I2S_CHANNEL_DEFAULT_CONFIG(I2S_NUM_0, I2S_ROLE_MASTER);
+  i2s_new_channel(&chan_cfg, &i2s_tx, NULL);
+
+  i2s_std_config_t std_cfg = {
+    .clk_cfg  = I2S_STD_CLK_DEFAULT_CONFIG(22050),
+    .slot_cfg = I2S_STD_PHILIPS_SLOT_DEFAULT_CONFIG(
+                  I2S_DATA_BIT_WIDTH_16BIT, I2S_SLOT_MODE_STEREO),
+    .gpio_cfg = {
+      .mclk = I2S_GPIO_UNUSED,
+      .bclk = (gpio_num_t)I2S_BCLK_PIN,
+      .ws   = (gpio_num_t)I2S_LRC_PIN,
+      .dout = (gpio_num_t)I2S_DOUT_PIN,
+      .din  = I2S_GPIO_UNUSED,
+      .invert_flags = {
+        .mclk_inv = false,
+        .bclk_inv = false,
+        .ws_inv   = false,
+      },
+    },
   };
-  i2s_pin_config_t pins = {
-    .bck_io_num   = I2S_BCLK,
-    .ws_io_num    = I2S_LRC,
-    .data_out_num = I2S_DOUT,
-    .data_in_num  = I2S_PIN_NO_CHANGE
-  };
-  i2s_driver_install(I2S_NUM_0, &cfg, 0, NULL);
-  i2s_set_pin(I2S_NUM_0, &pins);
-  i2s_zero_dma_buffer(I2S_NUM_0);
+  i2s_channel_init_std_mode(i2s_tx, &std_cfg);
+  i2s_channel_enable(i2s_tx);
 }
 
 // Play a sine-wave tone. freq_hz: pitch. duration_ms: length. vol: 0–32767.
 void beep(int freq_hz, int duration_ms, int vol = 8000) {
-  const int SR      = 22050;
-  const int total   = (SR * duration_ms) / 1000;
-  const int CHUNK   = 256;
-  const int FADE    = 200;  // samples for fade-in / fade-out (avoids clicks)
+  const int SR    = 22050;
+  const int total = (SR * duration_ms) / 1000;
+  const int CHUNK = 256;
+  const int FADE  = 200;  // fade in/out samples — avoids clicks
   int16_t buf[CHUNK * 2];
   int done = 0;
 
@@ -79,13 +82,13 @@ void beep(int freq_hz, int duration_ms, int vol = 8000) {
       float env = 1.0f;
       if (pos < FADE)            env = (float)pos / FADE;
       else if (pos > total-FADE) env = (float)(total - pos) / FADE;
-      float t   = (float)pos / SR;
+      float   t = (float)pos / SR;
       int16_t s = (int16_t)(vol * env * sinf(2.0f * M_PI * freq_hz * t));
       buf[i * 2]     = s;   // L
       buf[i * 2 + 1] = s;   // R
     }
     size_t written;
-    i2s_write(I2S_NUM_0, buf, n * sizeof(int16_t) * 2, &written, pdMS_TO_TICKS(200));
+    i2s_channel_write(i2s_tx, buf, n * sizeof(int16_t) * 2, &written, pdMS_TO_TICKS(200));
     done += n;
   }
 }
@@ -107,28 +110,24 @@ void draw_button(bool pressed) {
 
 void draw_screen() {
   tft.fillScreen(TFT_BLACK);
-
-  // Title
   tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
   tft.setTextDatum(MC_DATUM);
   tft.setTextFont(2);
   tft.drawString("Tap the button", SCREEN_W / 2, 60);
-
   draw_button(false);
 }
 
 // ── Arduino entry points ──────────────────────────────────────────────────────
 void setup() {
   Serial.begin(115200);
-  Serial.println("beep_button starting");
 
   tft.init();
-  tft.setRotation(0);   // portrait, USB connector at bottom
+  tft.setRotation(0);
   draw_screen();
 
-  touch.begin();
+  ts.begin();
   Serial.printf("FT6336U firmware: %d  mode: %d\n",
-    touch.read_firmware_id(), touch.read_device_mode());
+    ts.read_firmware_id(), ts.read_device_mode());
 
   i2s_setup();
   Serial.println("Ready");
@@ -137,7 +136,7 @@ void setup() {
 bool prev_hit = false;
 
 void loop() {
-  FT6336U_TouchPointType tp = touch.scan();
+  FT6336U_TouchPointType tp = ts.scan();
 
   bool hit = false;
   if (tp.touch_count > 0) {
@@ -147,10 +146,10 @@ void loop() {
            ty >= BTN_Y && ty < BTN_Y + BTN_H);
   }
 
-  // Fire on the leading edge of a touch (finger down, not held)
+  // Fire on leading edge only (finger down, not held)
   if (hit && !prev_hit) {
     draw_button(true);
-    beep(880, 200);       // A5, 200 ms
+    beep(880, 200);
     draw_button(false);
   }
 
