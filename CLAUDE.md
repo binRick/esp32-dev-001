@@ -79,6 +79,23 @@ source .venv/bin/activate
 
 Do not use `pip3 install` or `pip install` directly — always use `.venv/bin/pip`.
 
+## Workflow — New Sketches
+
+When asked to write a new sketch, always produce **both**:
+
+1. **The sketch** — `sketches/<name>/<name>.ino` (plus any supporting files like `User_Setup.h`)
+2. **A flash script** — `flash-sketch-<NNN>-<name>.sh` that compiles with arduino-cli and flashes via `.venv/bin/esptool.py`
+
+Number scripts sequentially: `flash-sketch-001-...`, `flash-sketch-002-...`, etc.
+
+The flash script must:
+- Install arduino-cli via Homebrew if missing
+- Install required libraries (from registry or Freenove zip as needed)
+- Patch `TFT_eSPI/User_Setup.h` if the sketch uses the display
+- Compile with `arduino-cli` using FQBN `esp32:esp32:esp32s3:USBMode=hwcdc,CDCOnBoot=cdc,FlashSize=8M,PSRAM=opi`
+- Flash bootloader + partitions + app via `.venv/bin/esptool.py`
+- Support `--compile` and `--flash` flags for partial runs
+
 ## Notes
 
 - The board has two USB ports — the one in use is connected via the WCH/CH343 UART bridge
