@@ -88,6 +88,8 @@ When asked to write a new sketch, always produce **both**:
 
 Number scripts sequentially: `flash-sketch-001-...`, `flash-sketch-002-...`, etc.
 
+After writing the sketch and flash script, **always run the flash script automatically** and iterate until it compiles and flashes successfully — fixing errors without being asked.
+
 The flash script must:
 - Install arduino-cli via Homebrew if missing
 - Install required libraries (from registry or Freenove zip as needed)
