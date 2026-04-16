@@ -81,21 +81,20 @@ Do not use `pip3 install` or `pip install` directly — always use `.venv/bin/pi
 
 ## Workflow — New Sketches
 
-When asked to write a new sketch, always produce **both**:
+**Every new sketch follows these steps in order — all are mandatory, no exceptions:**
 
-1. **The sketch** — `sketches/<name>/<name>.ino` (plus any supporting files like `User_Setup.h`)
-2. **A flash script** — `flash-sketch-<NNN>-<name>.sh` that compiles with arduino-cli and flashes via `.venv/bin/esptool.py`
+1. Write `sketches/<name>/<name>.ino` (plus any supporting files like `User_Setup.h`)
+2. Write `flash-sketch-<NNN>-<name>.sh` (numbered sequentially)
+3. Run the flash script and iterate until it compiles and flashes successfully
+4. **Commit and push to GitHub** — do this automatically without being asked:
 
-Number scripts sequentially: `flash-sketch-001-...`, `flash-sketch-002-...`, etc.
-
-After writing the sketch and flash script, **always run the flash script automatically** and iterate until it compiles and flashes successfully — fixing errors without being asked.
-
-After a sketch is working, **always commit and push it to the repo**:
 ```bash
 git add sketches/<name>/ flash-sketch-<NNN>-<name>.sh
 git commit -m "Add sketch <NNN>: <description>"
 git push
 ```
+
+Do not consider the task complete until `git push` has succeeded.
 
 The flash script must:
 - Install arduino-cli via Homebrew if missing
