@@ -5,5 +5,5 @@
   "fqbn": "esp32:esp32:esp32s3:USBMode=hwcdc,CDCOnBoot=cdc,FlashSize=8M,PSRAM=opi",
   "hardwareFolders": "/Users/richardblundell/Library/Arduino15/packages/esp32/hardware/esp32/3.3.8,/Users/richardblundell/Library/Arduino15/packages/esp32/hardware/esp32/3.3.8",
   "otherLibrariesFolders": "/Users/richardblundell/Documents/Arduino/libraries",
-  "sketchLocation": "/Users/richardblundell/Desktop/repos/esp32-dev-001/sketches/dvd_screensaver"
+  "sketchLocation": "/Users/richardblundell/Desktop/repos/esp32-dev-001/sketches/lie_detector"
 }
