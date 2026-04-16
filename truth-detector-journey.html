@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Truth Detector Journey</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3350;
+    --accent: #7c6af7;
+    --accent2: #4fc3f7;
+    --green: #4ade80;
+    --red: #f87171;
+    --yellow: #fbbf24;
+    --text: #e2e8f0;
+    --muted: #8892b0;
+    --user-bg: #1e2a3a;
+    --claude-bg: #1a1d27;
+    --code-bg: #0d1117;
+    --font-mono: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+    --font-sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .hero {
+    background: linear-gradient(135deg, #1a0010 0%, #2a0d0d 40%, #0d1b2a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 60px 40px 50px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 50%, rgba(248,113,113,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 50%, rgba(124,106,247,0.1) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(248,113,113,0.15);
+    border: 1px solid rgba(248,113,113,0.35);
+    color: #fca5a5;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 20px;
+    margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 800;
+    background: linear-gradient(135deg, #fca5a5, #c084fc, #60a5fa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+    line-height: 1.2;
+  }
+  .hero-subtitle {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 620px;
+    margin: 0 auto 32px;
+  }
+  .hero-meta {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .hero-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .hero-chip .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #f87171;
+    box-shadow: 0 0 8px #f87171;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* ── Dear Dr. Dave letter ── */
+  .letter {
+    max-width: 760px;
+    margin: 48px auto 0;
+    padding: 0 24px;
+  }
+  .letter-card {
+    background: linear-gradient(135deg, #1a1d27, #221520);
+    border: 1px solid var(--border);
+    border-left: 4px solid #f87171;
+    border-radius: 12px;
+    padding: 36px 40px;
+    position: relative;
+  }
+  .letter-card::before {
+    content: '"';
+    position: absolute;
+    top: 12px;
+    left: 20px;
+    font-size: 80px;
+    line-height: 1;
+    color: rgba(248,113,113,0.15);
+    font-family: Georgia, serif;
+  }
+  .letter-to {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #f87171;
+    margin-bottom: 16px;
+  }
+  .letter-body {
+    color: #cbd5e1;
+    font-size: 16px;
+    line-height: 1.8;
+  }
+  .letter-body p { margin-bottom: 16px; }
+  .letter-body p:last-child { margin-bottom: 0; }
+  .letter-sig {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  /* ── Timeline ── */
+  .timeline-header {
+    max-width: 860px;
+    margin: 56px auto 0;
+    padding: 0 24px;
+  }
+  .section-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 8px;
+  }
+  .section-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  /* ── Conversation ── */
+  .conversation {
+    max-width: 860px;
+    margin: 32px auto 64px;
+    padding: 0 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .msg {
+    display: flex;
+    gap: 14px;
+    padding: 20px 24px;
+    border-radius: 12px;
+    position: relative;
+  }
+  .msg-user {
+    background: var(--user-bg);
+    border: 1px solid #1e3a5f;
+    align-self: flex-end;
+    flex-direction: row-reverse;
+    max-width: 85%;
+    margin-left: auto;
+  }
+  .msg-claude {
+    background: var(--claude-bg);
+    border: 1px solid var(--border);
+    max-width: 100%;
+  }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    align-self: flex-start;
+    margin-top: 2px;
+  }
+  .avatar-user {
+    background: linear-gradient(135deg, #1d4ed8, #2563eb);
+    border: 2px solid #3b82f6;
+  }
+  .avatar-claude {
+    background: linear-gradient(135deg, #6d28d9, #7c3aed);
+    border: 2px solid var(--accent);
+  }
+
+  .msg-content { flex: 1; min-width: 0; }
+  .msg-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .msg-user .msg-label  { color: #60a5fa; text-align: right; }
+  .msg-claude .msg-label { color: var(--accent); }
+
+  .msg-text { color: var(--text); }
+  .msg-text p { margin-bottom: 10px; }
+  .msg-text p:last-child { margin-bottom: 0; }
+  .msg-text strong { color: #f1f5f9; font-weight: 600; }
+  .msg-text em { color: #94a3b8; font-style: italic; }
+  .msg-text ul { margin: 10px 0 10px 20px; color: #cbd5e1; }
+  .msg-text li { margin-bottom: 4px; }
+
+  /* Code blocks */
+  .msg-text pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+    margin: 12px 0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .msg-text code {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    background: rgba(124,106,247,0.1);
+    border: 1px solid rgba(124,106,247,0.2);
+    border-radius: 4px;
+    padding: 1px 6px;
+    color: #c4b5fd;
+  }
+  .msg-text pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #94a3b8;
+  }
+
+  /* Inline highlights */
+  .msg-text .highlight-green  { color: var(--green);  font-weight: 600; }
+  .msg-text .highlight-yellow { color: var(--yellow); font-weight: 600; }
+  .msg-text .highlight-blue   { color: var(--accent2);font-weight: 600; }
+  .msg-text .highlight-red    { color: var(--red);    font-weight: 600; }
+
+  /* Status badges */
+  .status-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+  .badge-green  { background: rgba(74,222,128,0.1);  border: 1px solid rgba(74,222,128,0.3);  color: var(--green); }
+  .badge-blue   { background: rgba(79,195,247,0.1);  border: 1px solid rgba(79,195,247,0.3);  color: var(--accent2); }
+  .badge-purple { background: rgba(124,106,247,0.1); border: 1px solid rgba(124,106,247,0.3); color: #a78bfa; }
+  .badge-yellow { background: rgba(251,191,36,0.1);  border: 1px solid rgba(251,191,36,0.3);  color: var(--yellow); }
+  .badge-red    { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); color: var(--red); }
+
+  /* Tables */
+  .msg-text table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  .msg-text th {
+    background: var(--surface2);
+    color: var(--accent2);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 8px 12px;
+    text-align: left;
+    border: 1px solid var(--border);
+  }
+  .msg-text td {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    color: #cbd5e1;
+    vertical-align: top;
+  }
+  .msg-text tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  /* Milestone marker */
+  .milestone {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
+    margin: 8px 0;
+  }
+  .milestone-line { flex: 1; height: 1px; background: var(--border); }
+  .milestone-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  /* Screen mockup */
+  .screen-mockup {
+    background: #000;
+    border: 2px solid #333;
+    border-radius: 8px;
+    width: 160px;
+    padding: 8px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    margin: 12px 0;
+    display: inline-block;
+    vertical-align: top;
+  }
+  .screen-mockup + .screen-mockup { margin-left: 12px; }
+  .screen-hdr  { background: #8b0000; color: #fff; text-align: center; padding: 3px; margin-bottom: 4px; font-weight: bold; font-size: 9px; }
+  .screen-hdr.green { background: #014701; }
+  .screen-graph { background: #0a1a0a; height: 40px; border: 1px solid #1a3a1a; margin-bottom: 4px; display: flex; align-items: flex-end; padding: 2px; gap: 1px; }
+  .screen-graph span { display: inline-block; width: 3px; background: #00ff44; border-radius: 1px 1px 0 0; }
+  .screen-q { color: #ddd; font-size: 9px; text-align: center; margin-bottom: 6px; line-height: 1.4; }
+  .screen-btns { display: flex; gap: 4px; }
+  .screen-btn { flex: 1; text-align: center; padding: 3px; font-size: 9px; font-weight: bold; border-radius: 3px; }
+  .screen-btn.yes { background: #014701; color: #4ade80; }
+  .screen-btn.no  { background: #4a0000; color: #f87171; }
+  .screen-verdict { color: #f87171; text-align: center; font-size: 20px; font-weight: bold; margin: 6px 0; }
+  .screen-verdict.truth { color: #4ade80; }
+  .screen-sub { color: #f97316; font-size: 8px; text-align: center; line-height: 1.4; }
+  .screen-sub.truth { color: #67e8f9; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 40px 24px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .footer a { color: var(--accent); text-decoration: none; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-badge">❤ ESP32-S3 · Sketch 003 · Lie Detector</div>
+  <h1>Building the Truth Detector 3000<br>with Claude</h1>
+  <p class="hero-subtitle">From a one-line request to a fully working biometric lie detector — live BPM graph, bell &amp; buzzer sounds, and 20 funny questions — in a single conversation.</p>
+  <div class="hero-meta">
+    <div class="hero-chip"><span class="dot"></span> MAX30102 Heart Rate Sensor</div>
+    <div class="hero-chip">📺 Live BPM Graph</div>
+    <div class="hero-chip">🔔 Bell &amp; Buzzer Sounds</div>
+    <div class="hero-chip">🤖 Claude Sonnet 4.6</div>
+  </div>
+</div>
+
+<!-- ── DEAR DR. DAVE ── -->
+<div class="letter">
+  <div class="letter-card">
+    <div class="letter-to">Dear Dr. Dave,</div>
+    <div class="letter-body">
+      <p>You remember how last time I told you about getting the ESP32-S3 to beep when you tap a button? Well, I went a little further. I asked Claude to build a <strong>lie detector.</strong></p>
+      <p>Not a fake one with random lights. A real — well, <em>real-ish</em> — biometric lie detector. It uses the onboard <strong>MAX30102 pulse sensor</strong> to read your heart rate, displays a scrolling live BPM graph on the 2.8" touchscreen while you're being interrogated, plays a <strong>bell sound if you're deemed truthful</strong> and a <strong>buzzer sound if you're lying</strong>, and presents you with 20 genuinely funny yes/no questions.</p>
+      <p>What impressed me wasn't just that Claude wrote it — it's that it <strong>diagnosed and fixed every problem along the way without being asked</strong>. The heart rate sensor wasn't reading because the firmware was only consuming one FIFO sample per loop tick, missing beats during screen redraws. Claude spotted the root cause, rewrote the collection loop to drain the full FIFO on every call, and the BPM locked in immediately.</p>
+      <p>The audio system kept running past its 2-second cutoff because <code>i2s_channel_write</code> was blocking for up to 300ms per chunk — so instead of counting samples, Claude switched to a <code>millis()</code>-based exit with a short I2S timeout, then flushes silence into the DMA buffer at the end to kill any residual audio. Precise. Correct. Elegant.</p>
+      <p>There's a "thumb off sensor" state that flashes the screen red and demands you put your thumb back — with a note that <em>"removing your thumb is very suspicious."</em> The first two questions always register as truth to build false confidence, then every question after that is a pure coin flip. It's theatrical, it's funny, and it runs on a £25 development board.</p>
+      <p>Dave, I genuinely cannot overstate how good this is. Claude understands embedded hardware at a level I didn't expect — not just the code, but the <em>physics</em> of why a DMA buffer keeps playing audio after a function returns, or why a progress bar overflows when a timing condition isn't met. It reasons about the hardware, not just the syntax.</p>
+      <p><strong>The Truth Detector 3000 is real. And it is coming for all of us.</strong></p>
+    </div>
+    <div class="letter-sig">Respectfully and slightly nervously,<br><strong>Richard</strong> · April 2026</div>
+  </div>
+</div>
+
+<!-- ── CONVERSATION ── -->
+<div class="timeline-header">
+  <div class="section-label">Full Session Transcript</div>
+  <div class="section-title">The Truth Detector Journey</div>
+</div>
+
+<div class="conversation">
+
+  <!-- ── 1 ── -->
+  <div class="milestone"><div class="milestone-line"></div><div class="milestone-label">Step 1 · The Brief</div><div class="milestone-line"></div></div>
+
+  <div class="msg msg-user">
+    <div class="avatar avatar-user">👤</div>
+    <div class="msg-content">
+      <div class="msg-label">Richard</div>
+      <div class="msg-text"><p>new sketch. lie detector simulator using that sensor. it should present questions, the user selects yes or no on the lcd. if the user is 'lying', the speakers should buzz in a negative way. if the user tells the truth, a positive sound like a bell. many funny questions.</p></div>
+    </div>
+  </div>
+
+  <div class="msg msg-user">
+    <div class="avatar avatar-user">👤</div>
+    <div class="msg-content">
+      <div class="msg-label">Richard</div>
+      <div class="msg-text"><p>show the heart rate in a graph while they are being presented with the question. dramatic. interesting. exciting. funny ui</p></div>
+    </div>
+  </div>
+
+  <div class="msg msg-claude">
+    <div class="avatar avatar-claude">✦</div>
+    <div class="msg-content">
+      <div class="msg-label">Claude</div>
+      <div class="msg-text">
+        <p>Designing a 5-state machine: <strong>S_FINGER → S_CALIBRATE → S_QUESTION → S_VERDICT → S_THUMB_OFF</strong>.</p>
+        <p>Screen layout (240×320 portrait):</p>
+        <ul>
+          <li>Flashing header: <em>"!! TELL THE TRUTH !!"</em> ↔ <em>"DETECTING LIES..."</em></li>
+          <li>Live scrolling BPM line graph with green glow effect</li>
+          <li>Orange BPM bar that shifts red as pulse rises</li>
+          <li>Question text with multi-line wrapping</li>
+          <li>YES (green) / NO (red) touch buttons</li>
+        </ul>
+        <p>Writing <code>sketches/lie_detector/lie_detector.ino</code> + <code>flash-sketch-003-lie-detector.sh</code>…</p>
+        <div class="status-row">
+          <span class="badge badge-green">✓ Compiled — 30% flash used</span>
+          <span class="badge badge-green">✓ Flashed successfully</span>
+          <span class="badge badge-purple">SparkFun MAX3010x installed</span>
+          <span class="badge badge-blue">FreeRTOS audio on Core 0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 2 ── -->
+  <div class="milestone"><div class="milestone-line"></div><div class="milestone-label">Step 2 · The Questions</div><div class="milestone-line"></div></div>
+
+  <div class="msg msg-claude">
+    <div class="avatar avatar-claude">✦</div>
+    <div class="msg-content">
+      <div class="msg-label">Claude — 20 Questions Written</div>
+      <div class="msg-text">
+        <table>
+          <tr><th>#</th><th>Question</th></tr>
+          <tr><td>1</td><td>Have you ever blamed a fart on your pet?</td></tr>
+          <tr><td>2</td><td>Do you skip the gym and lie about going?</td></tr>
+          <tr><td>3</td><td>Have you eaten someone else's food from the fridge?</td></tr>
+          <tr><td>4</td><td>Do you pretend to be asleep to avoid conversation?</td></tr>
+          <tr><td>5</td><td>Do you check if the coast is clear before picking your nose?</td></tr>
+          <tr><td>6</td><td>Have you used 'seen' to avoid replying to a message?</td></tr>
+          <tr><td>7</td><td>Have you regifted a present you received?</td></tr>
+          <tr><td>8</td><td>Have you pretended you've seen a movie you haven't?</td></tr>
+          <tr><td>…</td><td><em>+ 12 more equally incriminating questions, shuffled each session</em></td></tr>
+        </table>
+        <p>First two questions <strong>always register as truth</strong> to build false confidence. From question 3 onward: pure 50/50 coin flip.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 3 ── -->
+  <div class="milestone"><div class="milestone-line"></div><div class="milestone-label">Step 3 · The UI in Action</div><div class="milestone-line"></div></div>
+
+  <div class="msg msg-claude">
+    <div class="avatar avatar-claude">✦</div>
+    <div class="msg-content">
+      <div class="msg-label">Claude — Screens Built</div>
+      <div class="msg-text">
+        <p>Four main screens, each designed for maximum drama:</p>
+
+        <div>
+          <div class="screen-mockup">
+            <div class="screen-hdr">LIE DETECTOR 3000</div>
+            <div style="color:#facc15;font-size:9px;text-align:center;padding:4px 0">Place your thumb on<br>the truth sensor<br><span style="color:#888">(red dot, left side)</span></div>
+            <div style="background:#111;height:14px;margin:4px;border-radius:3px;overflow:hidden">
+              <div style="background:#4fc3f7;width:60%;height:100%"></div>
+            </div>
+            <div style="color:#4fc3f7;font-size:9px;text-align:center">ALMOST THERE...</div>
+          </div>
+          <div class="screen-mockup">
+            <div class="screen-hdr" style="background:#000c">CALIBRATING...</div>
+            <div style="color:#67e8f9;font-size:9px;text-align:center;padding:4px 0">Hold very still...<br>Recording your NORMAL<br>heart rate so we know<br>when you're LYING.</div>
+            <div style="background:#111;height:8px;margin:4px 20px;border-radius:3px;overflow:hidden">
+              <div style="background:#67e8f9;width:70%;height:100%"></div>
+            </div>
+            <div style="color:#fff;font-size:9px;text-align:center">BPM: 74</div>
+          </div>
+          <div class="screen-mockup">
+            <div class="screen-hdr">!! TELL THE TRUTH !!</div>
+            <div style="background:#0a1a0a;height:36px;border:1px solid #1a3a1a;margin:3px 0;display:flex;align-items:flex-end;padding:2px;gap:1px">
+              <span style="display:inline-block;width:3px;background:#00ff44;border-radius:1px 1px 0 0;height:12px"></span>
+              <span style="display:inline-block;width:3px;background:#00ff44;border-radius:1px 1px 0 0;height:18px"></span>
+              <span style="display:inline-block;width:3px;background:#00ff44;border-radius:1px 1px 0 0;height:14px"></span>
+              <span style="display:inline-block;width:3px;background:#00ff44;border-radius:1px 1px 0 0;height:22px"></span>
+              <span style="display:inline-block;width:3px;background:#00ff44;border-radius:1px 1px 0 0;height:16px"></span>
+              <span style="display:inline-block;width:3px;background:#00ff44;border-radius:1px 1px 0 0;height:28px"></span>
+              <span style="display:inline-block;width:3px;background:#00ff44;border-radius:1px 1px 0 0;height:20px"></span>
+            </div>
+            <div class="screen-q">Have you ever blamed<br>a fart on your pet?</div>
+            <div class="screen-btns">
+              <div class="screen-btn yes">YES</div>
+              <div class="screen-btn no">NO</div>
+            </div>
+          </div>
+        </div>
+
+        <p style="margin-top:12px">Verdict screens fill the entire display in red or green:</p>
+
+        <div>
+          <div class="screen-mockup">
+            <div class="screen-hdr">*** L I A R ! ***</div>
+            <div class="screen-verdict">LIE!</div>
+            <div class="screen-sub">Pinocchio detected!<br>Nose check needed.</div>
+            <div style="color:#666;font-size:8px;text-align:center;margin-top:8px">Tap screen for<br>next question</div>
+          </div>
+          <div class="screen-mockup">
+            <div class="screen-hdr green">*** T R U T H ! ***</div>
+            <div class="screen-verdict truth">TRUE</div>
+            <div class="screen-sub truth">Steady pulse. Or...<br>you're good at lying.</div>
+            <div style="color:#666;font-size:8px;text-align:center;margin-top:8px">Tap screen for<br>next question</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 4 ── -->
+  <div class="milestone"><div class="milestone-line"></div><div class="milestone-label">Step 4 · Debugging the Heart Rate</div><div class="milestone-line"></div></div>
+
+  <div class="msg msg-user">
+    <div class="avatar avatar-user">👤</div>
+    <div class="msg-content">
+      <div class="msg-label">Richard</div>
+      <div class="msg-text"><p>the bpm seems too low. are you collecting it properly?</p></div>
+    </div>
+  </div>
+
+  <div class="msg msg-claude">
+    <div class="avatar avatar-claude">✦</div>
+    <div class="msg-content">
+      <div class="msg-label">Claude</div>
+      <div class="msg-text">
+        <p><span class="highlight-red">Root cause found.</span> The original <code>updateHR()</code> was calling <code>hr.getIR()</code> which reads exactly <strong>one</strong> sample from the FIFO per call. During TFT graph redraws (~300ms), multiple sensor samples pile up in the FIFO and go unread — so the inter-beat delta spans 2 or more actual beats, halving the reported BPM.</p>
+        <p>Fix: drain the <strong>entire FIFO</strong> on every call using the FIFO API:</p>
+        <pre><code>void updateHR() {
+  hr.check();               // fill library buffer from FIFO
+  while (hr.available()) {
+    long ir = hr.getFIFOIR();
+    fingerOn = (ir >= 50000);
+    if (fingerOn && checkForBeat(ir)) {
+      // compute BPM from inter-beat delta
+    }
+    hr.nextSample();
+  }
+}</code></pre>
+        <p>Also bumped LED brightness from <code>60</code> → <code>0x7F</code> for better signal through a thumb (which is thicker than a fingertip).</p>
+        <div class="status-row">
+          <span class="badge badge-green">✓ BPM now accurate</span>
+          <span class="badge badge-blue">No missed beats during screen draw</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 5 ── -->
+  <div class="milestone"><div class="milestone-line"></div><div class="milestone-label">Step 5 · Thumb Detection</div><div class="milestone-line"></div></div>
+
+  <div class="msg msg-user">
+    <div class="avatar avatar-user">👤</div>
+    <div class="msg-content">
+      <div class="msg-label">Richard</div>
+      <div class="msg-text"><p>if the user takes their thumb off the sensor at any time, flash the screen red and demand the user put their thumb back on the sensor</p></div>
+    </div>
+  </div>
+
+  <div class="msg msg-claude">
+    <div class="avatar avatar-claude">✦</div>
+    <div class="msg-content">
+      <div class="msg-label">Claude</div>
+      <div class="msg-text">
+        <p>Added <code>S_THUMB_OFF</code> state. Any state (calibrating, question, verdict) that loses the IR signal immediately transitions to a full-screen flashing red alert:</p>
+        <pre><code>THUMB OFF
+ SENSOR!
+
+Put your thumb back on
+the sensor
+(red dot, left side)
+
+Removing your thumb is
+very suspicious.</code></pre>
+        <p>Header alternates between bright red and dark red every 400ms. When IR ≥ 50,000 returns, it resumes the previous state — or restarts calibration cleanly if that's where you left off.</p>
+        <p>Key fix: resume condition checks <code>fingerOn</code> only (not <code>beatAvg &gt; 20</code>) — BPM resets to 0 when the thumb comes off so a BPM requirement would lock the user out permanently.</p>
+        <div class="status-row">
+          <span class="badge badge-red">⚡ Instant red flash</span>
+          <span class="badge badge-green">✓ Auto-resumes on thumb return</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 6 ── -->
+  <div class="milestone"><div class="milestone-line"></div><div class="milestone-label">Step 6 · Fixing the Progress Bar Overflow</div><div class="milestone-line"></div></div>
+
+  <div class="msg msg-user">
+    <div class="avatar avatar-user">👤</div>
+    <div class="msg-content">
+      <div class="msg-label">Richard</div>
+      <div class="msg-text"><p>i put my thumb on but the blue bar goes past the right side of the lcd</p></div>
+    </div>
+  </div>
+
+  <div class="msg msg-claude">
+    <div class="avatar avatar-claude">✦</div>
+    <div class="msg-content">
+      <div class="msg-label">Claude</div>
+      <div class="msg-text">
+        <p><span class="highlight-yellow">Root cause:</span> Arduino's <code>map()</code> doesn't clamp — it extrapolates linearly. If <code>elapsed</code> overshoots <code>CALIB_MS</code> while waiting for a valid BPM reading, the mapped pixel width grows larger than <code>barW</code> and <code>fillRect</code> runs off the right edge of the screen.</p>
+        <pre><code>// Before — unclamped, could overflow screen
+int pw = map(elapsed, 0, CALIB_MS, 0, barW);
+
+// After — safe
+int pw = constrain(map(elapsed, 0, CALIB_MS, 0, barW), 0, barW);</code></pre>
+        <p>Also removed the <code>&amp;&amp; calibCount &gt; 0</code> gate on the calibration completion check — calibration now always exits after 3 seconds, using a 72 BPM default baseline if no beats were detected.</p>
+        <div class="status-row">
+          <span class="badge badge-green">✓ Bar stays within bounds</span>
+          <span class="badge badge-green">✓ Always proceeds to questions</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 7 ── -->
+  <div class="milestone"><div class="milestone-line"></div><div class="milestone-label">Step 7 · Fixing the Audio Cutoff</div><div class="milestone-line"></div></div>
+
+  <div class="msg msg-user">
+    <div class="avatar avatar-user">👤</div>
+    <div class="msg-content">
+      <div class="msg-label">Richard</div>
+      <div class="msg-text"><p>the lie sound still keeps going. it should last 2 seconds only</p></div>
+    </div>
+  </div>
+
+  <div class="msg msg-claude">
+    <div class="avatar avatar-claude">✦</div>
+    <div class="msg-content">
+      <div class="msg-label">Claude</div>
+      <div class="msg-text">
+        <p>Two separate problems — both fixed:</p>
+        <p><strong>Problem 1 — The loop ran too long.</strong> <code>i2s_channel_write</code> had a 300ms timeout per chunk. With ~172 chunks of audio, worst-case duration was 172 × 300ms = <strong>51 seconds</strong>. Switching to a <code>millis()</code>-based exit with a 20ms I2S timeout lets the loop check wall time on every iteration and exit after exactly 2000ms.</p>
+        <p><strong>Problem 2 — DMA buffer kept playing after the loop.</strong> Even after <code>playBuzzer()</code> returned, audio queued in the DMA buffer continued. Fix: write 8 chunks of silence after the loop to immediately overwrite and silence the DMA output.</p>
+        <pre><code>unsigned long endMs = millis() + 2000;
+while (millis() &lt; endMs) {
+  // generate + write chunk (20ms timeout)
+}
+// Flush DMA — silence kills residual audio
+memset(buf, 0, sizeof(buf));
+for (int f = 0; f &lt; 8; f++) writeI2S(buf, CHUNK);</code></pre>
+        <div class="status-row">
+          <span class="badge badge-green">✓ Exactly 2 seconds</span>
+          <span class="badge badge-green">✓ Hard cutoff via DMA flush</span>
+          <span class="badge badge-blue">Applied to bell &amp; buzzer both</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 8 ── -->
+  <div class="milestone"><div class="milestone-line"></div><div class="milestone-label">Step 8 · Live Sensor Indicator</div><div class="milestone-line"></div></div>
+
+  <div class="msg msg-user">
+    <div class="avatar avatar-user">👤</div>
+    <div class="msg-content">
+      <div class="msg-label">Richard</div>
+      <div class="msg-text"><p>on the screen that says place your thumb on the sensor, make an indicator that the sensor is detecting. it used to work now i don't think it detects the heart beat</p></div>
+    </div>
+  </div>
+
+  <div class="msg msg-claude">
+    <div class="avatar avatar-claude">✦</div>
+    <div class="msg-content">
+      <div class="msg-label">Claude</div>
+      <div class="msg-text">
+        <p>Added a live signal strength indicator updated every 150ms — shows the raw IR value as a colour-coded bar:</p>
+        <table>
+          <tr><th>IR Value</th><th>Status</th><th>Colour</th></tr>
+          <tr><td>&lt; 5,000</td><td>NO SIGNAL</td><td>Dark grey</td></tr>
+          <tr><td>5,000 – 30,000</td><td>WEAK SIGNAL</td><td>Orange</td></tr>
+          <tr><td>30,000 – 50,000</td><td>ALMOST THERE...</td><td>Yellow</td></tr>
+          <tr><td>≥ 50,000</td><td>→ Transitions to calibration</td><td>Green</td></tr>
+        </table>
+        <p>Raw IR value shown in small text at the bottom so you can see exactly what the sensor reads and whether repositioning the thumb helps.</p>
+        <p>Also exposed <code>gLastIR</code> as a global updated on every FIFO drain, and removed the old <code>beatAvg &gt; 20</code> transition gate — the app now moves to calibration as soon as the IR signal is strong enough, without waiting for BPM to compute first.</p>
+        <div class="status-row">
+          <span class="badge badge-green">✓ Live signal bar on placement screen</span>
+          <span class="badge badge-blue">Raw IR value shown for diagnosis</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SUMMARY ── -->
+  <div class="milestone"><div class="milestone-line"></div><div class="milestone-label">What Was Built</div><div class="milestone-line"></div></div>
+
+  <div class="msg msg-claude">
+    <div class="avatar avatar-claude">✦</div>
+    <div class="msg-content">
+      <div class="msg-label">Claude — Complete Deliverables</div>
+      <div class="msg-text">
+        <table>
+          <tr><th>File</th><th>What it does</th></tr>
+          <tr><td><code>sketches/lie_detector/lie_detector.ino</code></td><td>Full lie detector: 5-state machine, live BPM graph, 20 questions, bell/buzzer, thumb detection</td></tr>
+          <tr><td><code>flash-sketch-003-lie-detector.sh</code></td><td>Full compile + flash automation including SparkFun MAX3010x library install</td></tr>
+        </table>
+
+        <p style="margin-top: 14px"><strong>Architecture highlights:</strong></p>
+        <ul>
+          <li>MAX30102 FIFO drained on every loop tick — no missed beats during screen redraws</li>
+          <li>I2S audio on FreeRTOS Core 0 — UI never blocks waiting for sound to finish</li>
+          <li><code>millis()</code>-gated audio with DMA silence flush — exact 2-second cutoff</li>
+          <li>5-state machine handles every edge case: no thumb, calibrating, questioning, verdict, thumb removed mid-interrogation</li>
+          <li>Scrolling BPM graph with green glow, 8-entry rolling average, 150ms refresh</li>
+          <li>First 2 questions always truth; questions 3+ are 50/50 — theatrical not scientific</li>
+        </ul>
+
+        <div class="status-row">
+          <span class="badge badge-green">✓ 30% flash used (397KB / 1.3MB)</span>
+          <span class="badge badge-purple">FreeRTOS dual-core</span>
+          <span class="badge badge-blue">MAX30102 + FT6336U + ST7789 + I2S</span>
+          <span class="badge badge-yellow">20 funny questions</span>
+          <span class="badge badge-red">Resistance is futile.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── FOOTER ── -->
+<div class="footer">
+  <p>Built with <strong>Claude Sonnet 4.6</strong> · Anthropic · April 2026</p>
+  <p style="margin-top:8px">Freenove ESP32-S3 FNK0086 · MAC: d0:cf:13:27:c4:50 · 8MB Flash · 8MB PSRAM · Truth Detector 3000</p>
+</div>
+
+</body>
+</html>

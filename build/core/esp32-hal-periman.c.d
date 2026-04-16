@@ -1,0 +1,32 @@
+/Users/richardblundell/Desktop/repos/esp32-dev-001/build/core/esp32-hal-periman.c.o: \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/hardware/esp32/3.3.8/cores/esp32/esp32-hal-periman.c \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/hardware/esp32/3.3.8/cores/esp32/esp32-hal-log.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/qio_opi/include/sdkconfig.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/esp_timer/include/esp_timer.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/newlib/platform_include/stdio.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/esp_common/include/esp_err.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/esp_common/include/esp_compiler.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/esp_hw_support/include/esp_etm.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/esp_rom/esp32s3/include/esp32s3/rom/ets_sys.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/soc/esp32s3/include/soc/soc.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/esp_common/include/esp_assert.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/esp_common/include/esp_bit_defs.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/soc/esp32s3/register/soc/reg_base.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/log/include/esp_log.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/esp_rom/include/esp_rom_sys.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/soc/esp32s3/include/soc/reset_reasons.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/soc/esp32s3/include/soc/soc_caps.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/log/include/esp_log_config.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/log/include/esp_log_level.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/log/include/esp_log_color.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/log/include/esp_log_buffer.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/log/include/esp_log_timestamp.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/log/include/esp_log_write.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/log/include/esp_log_format.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/log/include/esp_log_args.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/esp_common/include/esp_macros.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/esp_common/include/esp_assert.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/log/include/esp_log_attr.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/esp_common/include/esp_attr.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/tools/esp32s3-libs/3.3.8/include/log/include/esp_private/log_attr.h \
+ /Users/richardblundell/Library/Arduino15/packages/esp32/hardware/esp32/3.3.8/cores/esp32/esp32-hal-periman.h
